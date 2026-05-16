@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agendamento - Dr. Marcelo Medeiros</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1e3c72;
+            --secondary: #0d9488;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f1f5f9 0%, #ffffff 100%);
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+        
+        .container-main {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .card-custom {
+            background: white;
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .step-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .step-number {
+            width: 50px;
+            height: 50px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .step-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .step-subtitle {
+            color: #64748b;
+            font-size: 1.1rem;
+        }
+        
+        /* Cards de Planos */
+        .plan-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .plan-option {
+            background: white;
+            border: 3px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 25px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .plan-option:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(13, 148, 136, 0.15);
+        }
+        
+        .plan-option.selected {
+            border-color: var(--secondary);
+            background: linear-gradient(135deg, #ffffff, #f0fdf9);
+            box-shadow: 0 10px 25px rgba(13, 148, 136, 0.2);
+        }
+        
+        .plan-option.selected::before {
+            content: '✓';
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 35px;
+            height: 35px;
+            background: var(--success);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.2rem;
+        }
+        
+        .plan-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .plan-price {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+        
+        .plan-features {
+            font-size: 0.9rem;
+            color: #64748b;
+            line-height: 1.6;
+        }
+        
+        /* Calendário */
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+        }
+        
+        .calendar-header button {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .calendar-header button:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.1);
+        }
+        
+        .calendar-month {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+        }
+        
+        .calendar-day-header {
+            text-align: center;
+            font-weight: 700;
+            color: var(--primary);
+            padding: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .calendar-day {
+            aspect-ratio: 1;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            color: #334155;
+        }
+        
+        .calendar-day:hover {
+            border-color: var(--secondary);
+            background: #f0fdf9;
+        }
+        
+        .calendar-day.selected {
+            background: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+        }
+        
+        .calendar-day.disabled {
+            background: #f8fafc;
+            color: #cbd5e1;
+            cursor: not-allowed;
+        }
+        
+        .calendar-day.disabled:hover {
+            border-color: #e2e8f0;
+            background: #f8fafc;
+        }
+        
+        .calendar-day.today {
+            border-color: var(--warning);
+            background: #fffbeb;
+        }
+        
+        /* Horários */
+        .time-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .time-slot {
+            padding: 18px;
+            border: 3px solid #e2e8f0;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        
+        .time-slot:hover {
+            border-color: var(--secondary);
+            background: #f0fdf9;
+        }
+        
+        .time-slot.selected {
+            background: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+        }
+        
+        .time-slot.occupied {
+            background: #fef2f2;
+            border-color: #fecaca;
+            color: #dc2626;
+            cursor: not-allowed;
+        }
+        
+        .time-slot.occupied:hover {
+            background: #fef2f2;
+            border-color: #fecaca;
+        }
+        
+        /* Resumo */
+        .summary-box {
+            background: linear-gradient(135deg, #f0fdf9, #ffffff);
+            border: 3px solid var(--secondary);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+        
+        .summary-label {
+            font-weight: 600;
+            color: #475569;
+        }
+        
+        .summary-value {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+        
+        /* Botões */
+        .btn-primary-custom {
+            background: linear-gradient(135deg, var(--primary), #2a4a7a);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary-custom:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(30, 60, 114, 0.3);
+        }
+        
+        .btn-primary-custom:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-back {
+            background: #f1f5f9;
+            color: var(--primary);
+            border: 2px solid #e2e8f0;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 10px;
+        }
+        
+        .btn-back:hover {
+            background: #e2e8f0;
+        }
+        
+        /* Alertas */
+        .alert-custom {
+            background: #fffbeb;
+            border-left: 5px solid var(--warning);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .alert-custom i {
+            color: var(--warning);
+            font-size: 1.5rem;
+            margin-right: 15px;
+        }
+        
+        .alert-success {
+            background: #f0fdf9;
+            border-left-color: var(--success);
+        }
+        
+        .alert-success i {
+            color: var(--success);
+        }
+        
+        /* Steps */
+        .steps-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+        
+        .step-dot {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #94a3b8;
+        }
+        
+        .step-dot.active {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .step-dot.completed {
+            background: var(--success);
+            color: white;
+        }
+        
+        /* Responsivo */
+        @media (max-width: 768px) {
+            .plan-grid {
+                grid-template-columns: 1fr;
+            }
+            .calendar-grid {
+                gap: 5px;
+            }
+            .calendar-day {
+                font-size: 0.9rem;
+            }
+            .time-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-main">
+        <!-- Steps Indicator -->
+        <div class="steps-indicator">
+            <div class="step-dot active" id="step-dot-1">1</div>
+            <div class="step-dot" id="step-dot-2">2</div>
+            <div class="step-dot" id="step-dot-3">3</div>
+            <div class="step-dot" id="step-dot-4">4</div>
+        </div>
+        
+        <!-- STEP 1: Escolher Plano -->
+        <div class="card-custom" id="step1">
+            <div class="step-header">
+                <div class="step-number">1</div>
+                <h2 class="step-title">Escolha seu plano</h2>
+                <p class="step-subtitle">Selecione o tipo de consulta que você precisa</p>
+            </div>
+            
+            <div class="plan-grid">
+                <div class="plan-option" onclick="selectPlan('99', 'Consulta Avulsa', 'https://mpago.la/1dre7pL')" id="plan-99">
+                    <div class="plan-name">Consulta Avulsa</div>
+                    <div class="plan-price">R$ 99</div>
+                    <div class="plan-features">
+                        ✓ 30 minutos<br>
+                        ✓ Atendimento em 24h<br>
+                        ✓ Prescrição digital
+                    </div>
+                </div>
+                
+                <div class="plan-option" onclick="selectPlan('199', 'Consulta Prioritária', 'https://mpago.la/2ucryqi')" id="plan-199">
+                    <div class="plan-name">Consulta Prioritária</div>
+                    <div class="plan-price">R$ 199</div>
+                    <div class="plan-features">
+                        ✓ 30 minutos<br>
+                        ✓ Atendimento em 12h<br>
+                        ✓ Laudo incluso
+                    </div>
+                </div>
+                
+                <div class="plan-option" onclick="selectPlan('450', 'Plano Fidelização', 'https://mpago.la/2pM5pbi')" id="plan-450">
+                    <div class="plan-name">Plano Fidelização</div>
+                    <div class="plan-price">R$ 450<small>/mês</small></div>
+                    <div class="plan-features">
+                        ✓ 2 consultas/mês<br>
+                        ✓ WhatsApp direto<br>
+                        ✓ Prioridade total
+                    </div>
+                </div>
+            </div>
+            
+            <button class="btn-primary-custom" onclick="goToStep(2)" id="btn-next-step1" disabled>
+                Continuar <i class="fas fa-arrow-right ms-2"></i>
+            </button>
+        </div>
+        
+        <!-- STEP 2: Escolher Data -->
+        <div class="card-custom" id="step2" style="display: none;">
+            <div class="step-header">
+                <div class="step-number">2</div>
+                <h2 class="step-title">Escolha a data</h2>
+                <p class="step-subtitle">Selecione o dia da sua consulta</p>
+            </div>
+            
+            <div class="calendar-header">
+                <button onclick="previousMonth()">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <div class="calendar-month" id="calendar-month"></div>
+                <button onclick="nextMonth()">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+            
+            <div class="calendar-grid" id="calendar-grid"></div>
+            
+            <div class="mt-4">
+                <button class="btn-back" onclick="goToStep(1)">
+                    <i class="fas fa-arrow-left me-2"></i> Voltar
+                </button>
+                <button class="btn-primary-custom" onclick="goToStep(3)" id="btn-next-step2" disabled>
+                    Continuar <i class="fas fa-arrow-right ms-2"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- STEP 3: Escolher Horário -->
+        <div class="card-custom" id="step3" style="display: none;">
+            <div class="step-header">
+                <div class="step-number">3</div>
+                <h2 class="step-title">Escolha o horário</h2>
+                <p class="step-subtitle">Horários disponíveis para <span id="selected-date-display"></span></p>
+            </div>
+            
+            <div class="alert-custom">
+                <i class="fas fa-info-circle"></i>
+                <strong>Importante:</strong> Os horários são exibidos em ordem. Escolha o mais cedo disponível para garantir atendimento rápido.
+            </div>
+            
+            <div class="time-grid" id="time-grid"></div>
+            
+            <div class="mt-4">
+                <button class="btn-back" onclick="goToStep(2)">
+                    <i class="fas fa-arrow-left me-2"></i> Voltar
+                </button>
+                <button class="btn-primary-custom" onclick="goToStep(4)" id="btn-next-step3" disabled>
+                    Continuar <i class="fas fa-arrow-right ms-2"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- STEP 4: Confirmação e Pagamento -->
+        <div class="card-custom" id="step4" style="display: none;">
+            <div class="step-header">
+                <div class="step-number">4</div>
+                <h2 class="step-title">Confirme e pague</h2>
+                <p class="step-subtitle">Revise seus dados e finalize o agendamento</p>
+            </div>
+            
+            <div class="summary-box">
+                <h4 style="color: var(--primary); margin-bottom: 20px; font-weight: 800;">
+                    <i class="fas fa-clipboard-check me-2"></i>Resumo do Agendamento
+                </h4>
+                <div class="summary-item">
+                    <span class="summary-label"><i class="fas fa-tag me-2"></i>Plano:</span>
+                    <span class="summary-value" id="summary-plan"></span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label"><i class="fas fa-dollar-sign me-2"></i>Valor:</span>
+                    <span class="summary-value" id="summary-price"></span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label"><i class="fas fa-calendar me-2"></i>Data:</span>
+                    <span class="summary-value" id="summary-date"></span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label"><i class="fas fa-clock me-2"></i>Horário:</span>
+                    <span class="summary-value" id="summary-time"></span>
+                </div>
+            </div>
+            
+            <div class="alert-custom alert-success">
+                <i class="fas fa-check-circle"></i>
+                <div>
+                    <strong>Próximo passo:</strong><br>
+                    1. Clique em "Ir para Pagamento"<br>
+                    2. Pague via Mercado Pago<br>
+                    3. <strong>IMPORTANTE:</strong> Envie o comprovante no WhatsApp <a href="https://wa.me/554491339060?text=Olá,%20fiz%20o%20pagamento%20do%20agendamento" target="_blank" style="color: var(--success); font-weight: 700;">(44) 9133-9060</a><br>
+                    4. Aguarde confirmação!
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <button class="btn-back" onclick="goToStep(3)">
+                    <i class="fas fa-arrow-left me-2"></i> Voltar
+                </button>
+                <button class="btn-primary-custom" onclick="goToPayment()" id="btn-payment">
+                    <i class="fas fa-credit-card me-2"></i> Ir para Pagamento
+                </button>
+            </div>
+            
+            <div class="text-center mt-3">
+                <a href="https://wa.me/554491339060" target="_blank" style="color: #25d366; font-weight: 700; text-decoration: none;">
+                    <i class="fab fa-whatsapp me-2"></i>Tem dúvidas? Fale conosco no WhatsApp
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Estado global
+        let selectedPlan = null;
+        let selectedPlanName = '';
+        let paymentLink = '';
+        let selectedDate = null;
+        let selectedTime = null;
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
+        
+        // Horários disponíveis (você pode editar aqui)
+        const availableSlots = [
+            '08:00', '08:30', '09:00', '09:30', '10:00', '10:30',
+            '11:00', '11:30'
+        ];
+        
+        // Horários ocupados (você atualiza manualmente aqui)
+        // Formato: { 'YYYY-MM-DD': ['08:00', '09:00'] }
+        const occupiedSlots = {
+            // Exemplo: '2026-05-20': ['08:00', '09:00', '10:00']
+        };
+        
+        // STEP 1: Selecionar Plano
+        function selectPlan(price, name, link) {
+            // Remove seleção anterior
+            document.querySelectorAll('.plan-option').forEach(el => el.classList.remove('selected'));
+            
+            // Adiciona seleção
+            document.getElementById(`plan-${price}`).classList.add('selected');
+            
+            // Atualiza estado
+            selectedPlan = price;
+            selectedPlanName = name;
+            paymentLink = link;
+            
+            // Habilita botão
+            document.getElementById('btn-next-step1').disabled = false;
+        }
+        
+        // Navegação entre steps
+        function goToStep(step) {
+            // Esconde todos
+            for(let i = 1; i <= 4; i++) {
+                document.getElementById(`step${i}`).style.display = 'none';
+                document.getElementById(`step-dot-${i}`).classList.remove('active', 'completed');
+            }
+            
+            // Mostra step atual
+            document.getElementById(`step${step}`).style.display = 'block';
+            document.getElementById(`step-dot-${step}`).classList.add('active');
+            
+            // Marca anteriores como completos
+            for(let i = 1; i < step; i++) {
+                document.getElementById(`step-dot-${i}`).classList.add('completed');
+            }
+            
+            // Ações específicas
+            if(step === 2) {
+                renderCalendar();
+            }
+            if(step === 3) {
+                renderTimeSlots();
+                document.getElementById('selected-date-display').textContent = formatDateBR(selectedDate);
+            }
+            if(step === 4) {
+                updateSummary();
+            }
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+        
+        // STEP 2: Calendário
+        function renderCalendar() {
+            const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                               'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+            
+            document.getElementById('calendar-month').textContent = 
+                `${monthNames[currentMonth]} ${currentYear}`;
+            
+            const grid = document.getElementById('calendar-grid');
+            grid.innerHTML = '';
+            
+            // Headers
+            const days = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+            days.forEach(day => {
+                const header = document.createElement('div');
+                header.className = 'calendar-day-header';
+                header.textContent = day;
+                grid.appendChild(header);
+            });
+            
+            // Dias
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            const today = new Date();
+            
+            // Espaços vazios antes do primeiro dia
+            for(let i = 0; i < firstDay; i++) {
+                const empty = document.createElement('div');
+                grid.appendChild(empty);
+            }
+            
+            // Dias do mês
+            for(let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(currentYear, currentMonth, day);
+                const dayEl = document.createElement('div');
+                dayEl.className = 'calendar-day';
+                dayEl.textContent = day;
+                
+                // Desabilita dias passados
+                if(date < today) {
+                    dayEl.classList.add('disabled');
+                } else {
+                    dayEl.onclick = () => selectDate(date);
+                    
+                    // Marca hoje
+                    if(date.toDateString() === today.toDateString()) {
+                        dayEl.classList.add('today');
+                    }
+                }
+                
+                grid.appendChild(dayEl);
+            }
+        }
+        
+        function previousMonth() {
+            currentMonth--;
+            if(currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            renderCalendar();
+        }
+        
+        function nextMonth() {
+            currentMonth++;
+            if(currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            renderCalendar();
+        }
+        
+        function selectDate(date) {
+            document.querySelectorAll('.calendar-day').forEach(el => el.classList.remove('selected'));
+            event.target.classList.add('selected');
+            selectedDate = date;
+            document.getElementById('btn-next-step2').disabled = false;
+        }
+        
+        // STEP 3: Horários
+        function renderTimeSlots() {
+            const grid = document.getElementById('time-grid');
+            grid.innerHTML = '';
+            
+            const dateKey = formatDateKey(selectedDate);
+            const occupied = occupiedSlots[dateKey] || [];
+            
+            availableSlots.forEach(time => {
+                const slot = document.createElement('div');
+                slot.className = 'time-slot';
+                slot.textContent = time;
+                
+                if(occupied.includes(time)) {
+                    slot.classList.add('occupied');
+                    slot.innerHTML = time + '<br><small>Ocupado</small>';
+                } else {
+                    slot.onclick = () => selectTime(time);
+                }
+                
+                grid.appendChild(slot);
+            });
+        }
+        
+        function selectTime(time) {
+            document.querySelectorAll('.time-slot').forEach(el => el.classList.remove('selected'));
+            event.target.classList.add('selected');
+            selectedTime = time;
+            document.getElementById('btn-next-step3').disabled = false;
+        }
+        
+        // STEP 4: Resumo
+        function updateSummary() {
+            document.getElementById('summary-plan').textContent = selectedPlanName;
+            document.getElementById('summary-price').textContent = `R$ ${selectedPlan}`;
+            document.getElementById('summary-date').textContent = formatDateBR(selectedDate);
+            document.getElementById('summary-time').textContent = selectedTime;
+        }
+        
+        function goToPayment() {
+            // Abre Mercado Pago
+            window.open(paymentLink, '_blank');
+            
+            // Mostra mensagem
+            alert('Após o pagamento, envie o comprovante no WhatsApp: (44) 9133-9060\n\nVamos confirmar seu agendamento!');
+        }
+        
+        // Helpers
+        function formatDateKey(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        
+        function formatDateBR(date) {
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+        
+        // Inicializar
+        window.onload = () => {
+            renderCalendar();
+        };
+    </script>
+</body>
+</html>
